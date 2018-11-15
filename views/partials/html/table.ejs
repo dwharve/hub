@@ -1,0 +1,20 @@
+<table class="table" ng-hide="!<%- view %>">
+  <thead>
+    <tr>
+      <% fields.forEach((field)=>{ %>
+        <th scope="col"><%- field %></th>
+      <% }); %>
+    </tr>
+  </thead>
+  <tbody>
+  <tr ng-repeat="el in <%- dataset %>" ng-click="<%- group %>.select(el)">
+    <% fields.forEach((field)=>{
+      <%- if(field == fields[0]){ %>
+        <th scope="row">{{ el.<%- field %> }} </th>
+      <% } else { %>
+        <td><%- field %></td>
+      <% } %>
+    <% }); %>
+  </tr>
+  </tbody>
+</table>

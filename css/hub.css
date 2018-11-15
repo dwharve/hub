@@ -1,0 +1,27 @@
+.hub-link:hover {
+  background-color: #444a50;
+}
+
+.hub-desc {
+  max-height: 300px;
+  min-height: 300px;
+  white-space: pre-wrap;
+}
+
+select.ng-valid.ng-touched {
+  background-color: lightblue;
+}
+
+select.ng-invalid.ng-touched {
+  background-color: pink;
+  border-color: red;
+}
+
+input.ng-valid.ng-touched {
+  background-color: lightblue;
+}
+
+input.ng-invalid.ng-touched {
+  background-color: pink;
+  border-color: red;
+}

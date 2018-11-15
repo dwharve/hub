@@ -1,0 +1,42 @@
+<div class="container ng-hide" ng-show="invSet.selected.newConnection.view" style="width:400">
+  <div class="card">
+    <div class="card-body ng-hide" ng-show="!invSet.selected.loading">
+      <div class="card-title">Connection Details</div>
+      <hr />
+      <form name="newConnForm" class="form-group" ng-submit="invSet.selected.newConnection.add()">
+        <div class="form-row align-items-center">
+          <div class="col-auto ml-auto mr-auto">
+            <select name="site" ng-model="invSet.selected.newConnection.site" class="form-control" ng-options="item as item.name for item in sites.collection" required></select>
+          </div>
+        </div>
+        <br>
+        <div class="form-row align-items-center">
+          <div class="col-auto ml-auto">
+            <input type="text" class="form-control" ng-model="invSet.selected.newConnection.a_ip" size=12 placeholder="IP" required ip>
+          </div>
+          <div class="col-auto mr-auto">
+            <input type="number" class="form-control" ng-model="invSet.selected.newConnection.a_port" min="1" max="65535" step="1" placeholder="Port" required>
+          </div>
+        </div>
+        <br>
+        <div class="form-row align-items-center">
+          <div class="col-auto ml-auto">
+            <input type="text" class="form-control" ng-model="invSet.selected.newConnection.b_ip" size=12 placeholder="IP" required ip>
+          </div>
+          <div class="col-auto mr-auto">
+            <input type="number" class="form-control" ng-model="invSet.selected.newConnection.b_port" min="1" max="65535" step="1" placeholder="Port" required>
+          </div>
+        </div>
+        <hr /><br>
+        <div class="form-row align-items-center">
+          <div class="col-auto">
+            <button class="btn btn-outline-default" type="button" ng-click="invset.selected.newConnection.discard()">Cancel</button>
+          </div>
+          <div class="col-auto ml-auto">
+            <button class="btn btn-outline-primary">Add</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,20 @@
+<table class="table" ng-hide="!binaries.view">
+  <thead>
+    <tr>
+      <th scope="col">MD5</th>
+      <th scope="col">Filename</th>
+      <th scope="col">Path</th>
+      <th scope="col">Cuckoo</th>
+      <th scope="col">Parent</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr ng-repeat="binary in binaries" ng-click="binaries.select(binary)">
+    <th scope="row">{{ binary.md5 }}</th>
+    <td>{{ (binary.filename.length == 0)?'-':(binary.ip.length > 1)?binary.filename.length:binary.filename[0] }}</td>
+    <td>{{ (binary.path.length == 0)?'-':(binary.path.length > 1)?binary.path.length:binary.path[0] }}</td>
+    <td><span class="badge">{{ binary.cuckoo.length }}</span></td>
+    <td><span class="badge">{{ binary.parent.length }}</span></td>
+  </tr>
+  </tbody>
+</table>

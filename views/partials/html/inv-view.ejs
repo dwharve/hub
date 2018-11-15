@@ -1,0 +1,79 @@
+<div class="container ng-hide" ng-show="invSet.view && invSet.selected && !invSet.selected.newConnection.view">
+  <div class="card">
+    <div class="card-body p-0">
+      <div class="card-title mb-0">
+        <nav class="navbar  navbar-expand-lg navbar-light bg-light justify-content-between">
+          <a class="navbar-brand" href="#">{{ invSet.selected.name }}</a>
+          <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ml-auto">
+              <li class="navbar-item dropdown">
+                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Actions<span class="caret"></span></a>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item ng-hide" href="#"  ng-show="!invSet.selected.editingDescription" ng-click="invSet.selected.editDescription()">Edit Description</a>
+                  <a class="dropdown-item" href="#" ng-click="invSet.selected.newConnection.view = true">Add Connection</a>
+                  <a class="dropdown-item" href="#" ng-click="hosts.selected.connect()">Add Binary</a>
+                  <a class="dropdown-item" href="#" ng-click="hosts.selected.connect()">RFI</a>
+                  <a class="dropdown-item" href="#" ng-click="hosts.selected.connect()">Submit as Intrusion</a>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+      <div class="card-text">
+        <div class="p-2 ng-hide hub-desc" ng-show="!invSet.selected.editingDescription">{{ invSet.selected.description }}</div>
+        <div class="form-group ng-hide" ng-show="invSet.selected.editingDescription">
+          <textarea class="form-control p-2 hub-desc" ng-model="invSet.selected.edited"></textarea>
+          <br>
+          <div class="p-2">
+            <div class="pull-left">
+              <button class="btn btn-default" ng-click="invSet.selected.cancelEditDescription()">Cancel</button>
+            </div>
+            <div class="text-right">
+              <button class="btn btn-primary" ng-click="invSet.selected.commit()">Save</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-text ng-hide" ng-show="invSet.selected.connections.length > 0">
+        <hr />
+        <div class="row ml-0 mr-0 text-center">
+          <div class="col-1"></div>
+          <div class="col-4"><b>Connections</b></div>
+          <div class="col-1"></div>
+          <div class="col-2"><b>Moloch Sessions</b></div>
+          <div class="col-2"><b>Suricata Alerts</b></div>
+          <div class="col-1"></div>
+        </div><br>
+        <div class="row mb-3 ml-0 mr-0 text-center" ng-repeat="(name, conn) in invSet.selected.connections.collection">
+          <div class="col-1"></div>
+          <div class="col-4">
+            <div class="row">
+              <div class="col-6" ng-repeat="(sname,sock) in conn.sockets.collection">
+                {{ sock.host.ip }} : <span class="text-secondary">{{ sock.port }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-1"></div>
+          <div class="col-2"><span class="badge badge-info"> &nbsp; {{ conn.payloads.length }} &nbsp; </span></div>
+          <div class="col-2"><span class="badge badge-info"> &nbsp; {{ conn.alerts.length }} &nbsp; </span></div>
+          <div class="col-1"><button class="btn btn-outline-danger btn-sm" ng-click="conn.remove()"><i class="fa fa-trash"></i></button></div>
+        </div>
+      </div>
+      <div class="card-text ng-hide" ng-show="invSet.selected.binaries.length > 0">
+        <br><hr />
+        <div class="row ml-0 mr-0 text-center">
+          <div class="col"><b>Filename</b></div>
+          <div class="col"><b>MD5</b></div>
+          <div class="col"><b>Hosts</b></div>
+          <div class="col"><b>Cuckoo</b></div>
+        </div>
+        <div class="row ml-0 mr-0 text-center" ng-repeat="(name,binary) in invSet.selected.binaries.collection">
+          <div class="col">{{ binary.filenames }}</div>
+          <div class="col">{{ binary.md5 }}</div>
+          <div class="col"><b><a href="#">{{ binary.cuckoo_scores }}</a></b></div>
+        </div>
+      </div><br>
+    </div>
+  </div>
+</div>

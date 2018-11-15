@@ -1,0 +1,14 @@
+{
+  "es_instances": ["elasticsearch:9200"],
+  "es_index": "tickets",
+  "actors": ["name","binaries","intrusions","hosts"],
+  "sites": ["name","intrusions"],
+  "investigations": ["hosts","connections","binaries","description","name"],
+  "intrusions": ["name","connections","description","status"],
+  "sockets": ["host","port"],
+  "connections": ["sockets","payloads","alerts"],
+  "payloads": ["moloch_id","payload"],
+  "hosts": ["ip","mac","mem_dump","disk_image","vol_profile","description"],
+  "binaries": ["names","md5","hosts","cuckoo_ids","cuckoo_scores","parent_child","pid","description"],
+  "messages": ["datetime","submitter","message","parent_class","parent"]
+}

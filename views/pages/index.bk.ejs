@@ -1,0 +1,488 @@
+<html>
+<% include ../partials/head %>
+<body ng-app="main" ng-controller="mainCtrl as ctrl">
+
+  <div class="modal fade" id="newConnectionModal"tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">New Connection</h4>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <div class="row">
+              <div class="col-md-9">
+                <label for="src_ip">Source IP</label>
+                <input type="text" class="form-control" name="src_ip">
+              </div>
+              <div class="col-md-3">
+                <label for="src_port">Source Port</label>
+                <input type="text" class="form-control" name="src_port">
+              </div>
+            </div><hr />
+            <div class="row">
+              <div class="col-md-9">
+                <label for="dst_ip">Destination IP</label>
+                <input type="text" class="form-control" name="ip_dst">
+              </div>
+              <div class="col-md-3">
+                <label for="dst_port">Destination Port</label>
+                <input type="text" class="form-control" name="dst_port">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Save connection</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="navbar navbar-default" role="navigation" id="mainNav">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#mainNav">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#" ng-click="select('investigations')">Tickets</a>
+      </div>
+      <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+          <li class="nav navbar-nav">
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Investigations<span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li><a href="#" ng-click="select('investigations',{})">New</a></li>
+                <li><a href="#" ng-click="select('investigations')">List</a></li>
+              </ul>
+            </li>
+          </li>
+        </ul>
+        <div class="navbar-form navbar-right" role="search">
+          <div class="form-group">
+            <input type="text" class="form-control" ng-model="query" placeholder="Find a host">
+          </div>
+          <button class="btn btn-default" ng-click="search()">Search</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="row" style="margin-right:0px;margin-left:0px" ng-cloak>
+    <div class="col-md-2">
+    </div>
+    <div class="col-md-7">
+      <div class="alert alert-danger" style="height:0px;padding:0px;margin-bottom:0px;opacity:0;" role="alert">{{ alert.message }}</div>
+      <!-- List -->
+
+      <div ng-hide="!active.investigations.view.list">
+        <ul class="nav nav-tabs">
+          <li class="active"><a href="#investigations" data-toggle="tab">Investigations</a></li>
+          <li><a href="#actors" data-toggle="tab">Actors</a></li>
+          <li><a href="#hosts" data-toggle="tab">Hosts</a></li>
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane fade in active" id="investigations"><br>
+            <div class="list-group">
+              <a href="#" class="list-group-item" ng-repeat="inv in dataset.investigations" ng-click="select('investigations',inv)">{{ inv.name }} <span class="badge">{{ inv.hosts.length }}</span></a>
+            </div>
+          </div>
+          <div class="tab-pane fade in active" id="actors">
+            <ul class="list-group">
+              <li class="list-group-item" ng-repeat="actor in dataset.actors">{{ actor.name }} <span class="badge">{{ actor.investigations.length }}</span></li>
+            </ul>
+          </div>
+          <div class="tab-pane fade" id="hosts">
+            <ul class="list-group">
+              <li class="list-group-item" ng-repeat="host in dataset.hosts">{{ host.name }} <span class="badge">{{ host.investigations.length }}</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Investigation -->
+
+      <div id="viewer" ng-hide="!active.investigations.view.element">
+        <div style="height:25%">
+          <div class="panel panel-default">
+            <nav class="navbar navbar-default" style="margin-bottom:0px">
+              <div class="navbar-header">
+                <a class="navbar-brand" href="#">{{ active.selected.name }}</a>
+              </div>
+              <div class="collapse navbar-collapse navbar-right">
+                <ul class="nav navbar-nav">
+                  <li class="nav navbar-nav">
+                    <li class="dropdown">
+                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Link<span class="caret"></span></a>
+                      <ul class="dropdown-menu">
+                        <li><a href="#" ng-click="active.investigations.link.show('hosts')">Hosts</a></li>
+                        <li><a href="#" ng-click="active.investigations.link.show('connections')">Connections</a></li>
+                        <li><a href="#" ng-click="active.investigations.link.show('binaries')">Binaries</a></li>
+                      </ul>
+                    </li>
+                  </li>
+                </ul>
+              </div>
+            </nav>
+            <div class="panel-body form-group" ng-hide="!active.investigations.link.view">
+              <label for="elements">{{ active.investigations.link.dataset }}</label>
+              <select class="form-control" ng-model="active.investigations.link.selected" ng-init="active.investigations.link.selected = dataset[active.investigations.link.dataset][0]" ng-options="element.name for element in dataset[active.investigations.link.dataset]" required>
+              </select><br>
+              <div class="pull-left"><button class="btn btn-default" ng-click="active.investigations.link.discard()">Cancel</button></div>
+              <div class="text-right"><button class="btn btn-primary" ng-click="active.investigations.link.save()">Save</button></div>
+            </div>
+            <div class="panel-body" style="width:100%;padding-top:0px;white-space: pre-wrap;overflow-y:scroll;height:100%" ng-hide="active.investigations.link.view || active.investigations.description.editing" ng-click="active.investigations.description.edit()">{{ active.investigations.element.description }}</div>
+            <div class="panel-body form-group" ng-hide="!active.investigations.description.editing">
+              <textarea class="form-control" ng-model="active.investigations.description.value"></textarea><br>
+              <div class="pull-left"><button class="btn btn-default" ng-click="active.investigations.description.discard()">Cancel</button></div>
+              <div class="text-right"><button class="btn btn-primary" ng-click="active.investigations.description.save()">Save</button></div>
+            </div>
+          </div>
+        </div>
+        <br><br>
+        <br>
+      </div>
+
+      <!-- New Investigation -->
+
+      <div id="newInvPanel" ng-hide="!active.investigations.view.new" ng-cloak>
+        <div class="panel panel-default">
+          <div class="panel-heading">Investigation</div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label for="site">Site</label>
+              <select class="form-control" ng-model="newInv.site" ng-init="newInv.site=dataset.sites[0]" ng-options="site.name for site in dataset.sites" required>
+              </select>
+              <br>
+              <label for="title">Title</label>
+              <input type="text" class="form-control" ng-model="newInv.name" placeholder="Title" id="title" required>
+              <br>
+              <div class="text-right">
+                <button class="btn btn-primary" ng-click="newInv.add()">Start</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search -->
+
+      <div ng-hide="active.selected != 'search'">
+        <div class="panel panel-default" ng-hide="searching">
+          <div class="panel-heading">"{{ submittedQuery }}" returned {{ totals.toString() }} results</div>
+        </div>
+        <div class="panel panel-default" ng-hide="searching" ng-repeat="result in results" ng-click="select(result.source.class,result.source)">
+          <div class="panel-heading">{{ result.name }}</div>
+          <div class="panel-body">
+            <p>{{ result.description }}</p>
+          </div>
+        </div>
+        <div class="panel panel-default" ng-hide="!searching">
+          <div class="panel-body text-center" id="searching"></div>
+        </div>
+      </div>
+
+      <!-- End Search -->
+
+    </div>
+    <div class="col-md-3">
+      <div ng-hide="!active.investigations.view.element" style="height:60%">
+        <div class="panel panel-default" style="height:100%;" ng-hide="!active.investigations.messages.loading">
+          <br><br>
+          <div class="panel-body text-center" id="searching"></div>
+        </div>
+        <div class="panel panel-default" id="messages" style="overflow-y:scroll;height:100%" ng-hide="active.investigations.messages.loading">
+          <div class="panel-body">
+            <div class="panel panel-default" ng-repeat="message in active.investigations.messages.list">
+              <div class="panel-body">
+                <div class="pull-left"><p>{{ message.submitter }}</p></div>
+                <div class="text-right"><p>{{ message.datetime }}</p></div>
+                <p>{{ message.message }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="panel panel-default">
+          <div class="panel-body form-group">
+            <label for="submitter">Name</label>
+            <input class="form-control" type="text" name="submitter" ng-model="active.investigations.messages.submitter"><hr />
+            <textarea class="form-control" ng-model="active.investigations.messages.message"></textarea><br>
+            <div class="text-right"><button class="btn btn-primary" ng-click="active.investigations.messages.send()">Send</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <% include ../partials/foot %>
+  <script src="/js/app.js"></script>
+  <script type="text/javascript">
+
+
+  app.controller('mainCtrl', ($scope,socket,$timeout)=>{
+    $scope.alert = {
+      show: (message)=>{
+        $scope.alert.message = message;
+        $('.alert').animate({height:'50px',padding:'15px','margin-bottom':'20px',opacity:0}).animate({opacity:100},4000);
+        $timeout(()=>{$('.alert').animate({opacity:'0'}).animate({height:'0px',padding:'0px','margin-bottom':'0px'});}, 5000);
+      },
+      hide: ()=>{
+        $('.alert').animate({opacity:'0'}).animate({height:'0px',padding:'0px','margin-bottom':'0px'});
+      },
+      message: ''
+    }
+    socket.on('err',(err)=>{
+      console.log(JSON.stringify(err));
+      $scope.alert.show(err.message);
+    });
+
+    $scope.active = {
+      selected: 'investigations',
+      investigations: {
+        view: {
+          new: false,
+          list: true,
+          element: false,
+          clear: ()=>{
+            $scope.active.investigations.view.new = false;
+            $scope.active.investigations.view.list = false;
+            $scope.active.investigations.view.element = false;
+          }
+        },
+        messages: {
+          list: [],
+          loading: false,
+          submitter: '',
+          message: '',
+          incoming: (msg)=>{
+            if(!$scope.active.investigations.element.hasOwnProperty('id')){ return; }
+            if(msg.parent != $scope.active.investigations.element.id){ return; }
+            if($scope.active.investigations.messages.list.filter( d=>{ return d.id == msg.id; }).length > 0)
+            { return; }
+            $scope.active.investigations.messages.list.push(msg);
+            $("body")
+            .switchClass('bg-default','bg-success',1000)
+            .switchClass('bg-success','bg-default',1000)
+          },
+          send: ()=>{
+            console.log($scope.active.investigations.element);
+            if(typeof($scope.active.investigations.element) != 'object'){ return; }
+            if(!$scope.active.investigations.element.hasOwnProperty('id')){ return; }
+            if($scope.active.investigations.messages.submitter == '' ||
+              $scope.active.investigations.messages.message == ''){
+                $scope.alert.show("Form incomplete");
+                return;
+              }
+            socket.emit('add',{
+              class: 'message',
+              submitter: $scope.active.investigations.messages.submitter,
+              message: $scope.active.investigations.messages.message,
+              parent: $scope.active.investigations.element.id,
+              parent_class: 'investigation'
+            });
+          }
+        },
+        load: ()=>{
+          $scope.active.investigations.messages.loading = true;
+          if($scope.active.investigations.view.element){
+            $("#messages").scrollTop = 0;
+            socket.emit('reqMessages',{id:$scope.active.investigations.element.id});
+            $scope.active.investigations.messages = [];
+          }
+        },
+        element: null,
+        description: {
+          edit: ()=>{
+            $scope.active.investigations.description.value = $scope.active.investigations.element.description;
+            $scope.active.investigations.description.editing = true;
+          },
+          editing: false,
+          value: '',
+          save: ()=>{
+            $scope.active.investigations.description.editing = false;
+            $scope.active.investigations.element.description = $scope.active.investigations.description.value;
+            socket.emit('update',$scope.active.investigations.element);
+          },
+          discard: ()=>{
+            $scope.active.investigations.description.editing = false;
+            $scope.active.investigations.description.value = '';
+          }
+        },
+        link: {
+          show: (elClass)=>{
+            $scope.active.investigations.link.dataset = elClass;
+            $scope.active.investigations.link.view = true;
+          },
+          view: false,
+          dataset: '',
+          save: ()=>{
+            $scope.active.investigations.link.view = false;
+            if(!$scope.active.investigations.element[$scope.active.investigations.link.dataset].includes($scope.active.investigations.link.selected)){
+              $scope.active.investigations.element[$scope.active.investigations.link.dataset].push($scope.active.investigations.link.selected);
+              socke.emit('update',$scope.active.investigations.element);
+            }else {
+              $scope.alert.show($scope.active.investigations.element.name + ' investigation already has ' + $scope.active.investigations.hosts.selected.ip + ' assigned.');
+            }
+          },
+          discard: ()=>{
+            $scope.active.investigations.link.view = false;
+            $scope.active.investigations.link.selected = '';
+          }
+        },
+        dataset: <%- JSON.stringify(investigations) %>
+      }
+    };
+    $scope.select = (view,selection)=>{
+      $scope.active[$scope.active.selected].view.clear();
+      $scope.active.selected = view;
+      if(typeof(selection) == 'object'){
+        if(Object.keys(selection).length == 0){ $scope.active[$scope.active.selected].view.new = true; }
+        else {
+          $scope.active[$scope.active.selected].view.element = true;
+          $scope.active[$scope.active.selected].element = selection;
+        }
+      }
+      else if(!selection){ $scope.active[$scope.active.selected].view.list = true; }
+      $scope.active[$scope.active.selected].load();
+    }
+
+    $scope.dataset = { sites: {}, investigations: {}, hosts: {}, actors: {}, messages: {} };
+    $scope.dataset.sites = <%- JSON.stringify(sites) %>;
+    $scope.dataset.investigations = <%- JSON.stringify(investigations) %>;
+    $scope.dataset.hosts = <%- JSON.stringify(hosts) %>;
+    $scope.dataset.actors = <%- JSON.stringify(actors) %>;
+
+    $scope.newInv = {
+      site:'',
+      name:'',
+      add : ()=>{
+        if($scope.dataset.sites.includes($scope.newInv.site) && $scope.newInv.name != ''){
+          socket.emit('add',{class:'investigation',name:$scope.newInv.name,site:$scope.newInv.site.name});
+          $scope.newInv = {site:'',name:''};
+          $scope.active.view = 'investigations';
+        }else{
+          $scope.alert.show("Form incomplete");
+        }
+      }
+    };
+
+    socket.on('investigation', (obj)=>{
+      var found = false;
+      for(var i=0;i<$scope.active.investigations.dataset.length;i++){
+        if(obj.id == $scope.active.investigations.dataset[i].id){
+          $scope.active.investigations.dataset[i] = obj;
+          found = true;
+          break;
+        }
+      }
+      if(!found){ $scope.active.investigations.dataset.push(obj); }
+      if(typeof($scope.active.investigations.element) != 'object'){ return; }
+      if(!$scope.active.investigations.element.hasOwnProperty('id')){ return; }
+      if($scope.active.investigations.element.id == obj.id){
+        $("body")
+          .switchClass('bg-default','bg-primary',100)
+          .switchClass('bg-primary','bg-default',100)
+          .switchClass('bg-default','bg-primary',100)
+          .switchClass('bg-primary','bg-default',100)
+          .switchClass('bg-default','bg-primary',100)
+          .switchClass('bg-primary','bg-default',100);
+        $scope.active.investigations.element = obj;
+      }
+    });
+    socket.on('site', (obj)=>{
+      $scope.sites.push(obj);
+    });
+    socket.on('actor', (obj)=>{
+      $scope.actors.push(obj);
+    });
+    socket.on('messages', (obj)=>{
+      $scope.active[$scope.active.selected].messages.list = obj;
+      $scope.active[$scope.active.selected].messages.loading = false;
+      $timeout(()=>{$("#messages").animate({scrollTop: $("#messages")[0].scrollHeight},1000);},100);
+    });
+    socket.on('message', (obj)=>{
+      if(!$scope.active[obj.parent_class].element.hasOwnProperty('id')){ return; }
+      if(obj.parent != $scope.active[obj.parent_class].element.id){ return; }
+      $scope.active[obj.parent_class].messages.incoming(obj);
+    });
+
+    $scope.query = '';
+    $scope.results = '';
+    $scope.totals = 0;
+    $scope.submittedQuery = '';
+    $scope.searching = false;
+    $scope.search = () => {
+      socket.emit('search',$scope.query);
+      $scope.active.view = 'search';
+      $scope.searching = true;
+      $scope.submittedQuery = $scope.query;
+    };
+    socket.on('search', (res)=>{
+      $scope.searching = false;
+      $scope.totals = res.length;
+      $scope.results = [];
+      for(var i=0;i<res.length;i++){
+        switch(res[i].class){
+          case 'message':
+            var inv = $scope.dataset.investigations.filter( d => { return d.id == res[i].parent; } );
+            if(inv.length > 0){
+              $scope.results.push({
+                name: 'Investigation: '+inv[0].name,
+                description: res[i].submitter+': '+res[i].message,
+                source: inv[0]
+              });
+            }
+            break;
+          case 'investigation':
+            $scope.results.push({
+              name: 'Investigation: '+res[i].name,
+              description: res[i].description,
+              source: res[i]
+            });
+            break;
+        }
+      }
+    });
+  });
+
+  var width = 100,
+      height = 100,
+      n = 18,
+      r = 5,
+      π = Math.PI,
+      p = 1000;
+  var svg = d3.selectAll("#searching").append("svg")
+      .attr("width", width)
+      .attr("height", height)
+      .style("background", "#FFF");
+  var g = svg.selectAll("g")
+      .data(d3.range(0, 2 * π, 2 * π / n))
+      .enter().append("g")
+      .attr("transform", function(d) {
+          var x = width  * (0.35 * Math.cos(d) + 0.5),
+              y = height * (0.35 * Math.sin(d) + 0.5);
+          return "translate(" + [x, y] + ")rotate(" + d * 180 / π + ")";
+      });
+  var moons = g.append("path")
+      .attr("fill", "#d1d1d1");
+  d3.timer(function(t) {
+      var θ = 2 * π * (t % p / p);
+      moons.attr("d", function(d) { return moon((θ + d) % (2 * π)); });
+  });
+  function moon(θ) {
+      var rx0 = θ < π ? r : -r,
+          s0  = θ < π ? 0 : 1,
+          rx1 = r * Math.cos(θ),
+          s1  = θ < π/2 || (π <= θ && θ < 3*π/2) ? 0 : 1;
+      return "M" + [                  0,  r] +
+             "A" + [rx0, r, 0, 0, s0, 0, -r] +
+             "A" + [rx1, r, 0, 0, s1, 0,  r];
+  }
+  </script>
+</body>
+</html>

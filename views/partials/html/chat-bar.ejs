@@ -1,0 +1,20 @@
+<div class="bg-info w-100 d-flex pl-0 pr-0 mr-0 ml-0">
+  <div style="overflow-y:scroll;" class="flex-grow-1">
+    <div class="card ml-2 mr-2 mb-1 mt-1">
+      <div class="card-body p-2">
+        <div class="card-subtitle text-muted" style="font-size:10">SomeSubmitter @ 2108-45-44 15:15:15Z</div>
+        <p class="card-text" style="font-size:14;white-space: pre-wrap;">This is a test message to see how long this can be and see how well it wraps.</p>
+      </div>
+    </div>
+  </div>
+  <div class="position-absolute w-100 bg-dark" style="bottom:0px">
+    <form id="chat" class="form-group m-2">
+      <div class="input-group">
+        <textarea style="font-size:14;min-height:38px;max-height:70px" type="text" class="form-control pull-left" ng-bind="chat.new.message"></textarea>
+        <div class="input-group-append">
+          <button class="btn btn-chat pull-right"><i class="fa fa-paper-plane"></i></button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

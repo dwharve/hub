@@ -1,0 +1,22 @@
+<table class="table" ng-hide="!hosts.view">
+  <thead>
+    <tr>
+      <th scope="col">Hostname</th>
+      <th scope="col">IP</th>
+      <th scope="col">Mac</th>
+      <th scope="col">Memory</th>
+      <th scope="col">Disk</th>
+      <th scope="col">Binaries</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr ng-repeat="host in hosts" ng-click="hosts.select(host)">
+    <th scope="row">{{ host.hostname }}</th>
+    <td>{{ (host.ip.length == 0)?'-':(host.ip.length > 1)?host.ip.length:host.ip[0] }}</td>
+    <td>{{ (host.mac.length == 0)?'-':(host.mac.length > 1)?host.mac.length:host.mac[0] }}</td>
+    <td><span class="badge">{{ host.mem_dumps.length }}</span></td>
+    <td><span class="badge">{{ host.disk_images.length }}</span></td>
+    <td><span class="badge">{{ host.binaries.length }}</span></td>
+  </tr>
+  </tbody>
+</table>

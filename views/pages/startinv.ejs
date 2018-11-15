@@ -1,0 +1,95 @@
+<html>
+<% include ../partials/head %>
+<body>
+<div class="container" ng-app="main">
+  <div ng-controller="searchCtrl as ctrl" class="ui-widget">
+    <div class="row" ng-show="host.ip.ready">
+      <div class="col-md-1">
+        <label for="host_ip">IP:</label>
+      </div>
+      <div class="col-md-8">
+        <input type="text" id="host_ip" ng-model="host.ip.value">
+      </div>
+      <div class="col-md-3">
+        <button id="host_ip_select" ng-bind="host.ip.selected ? 'Clear' : 'Select'" ng-click="validateIP()">
+      </div>
+    </div>
+    <div class="row" ng-show="host.port.ready">
+      <div class="col-md-1">
+        <label for="host_port">Port:</label>
+      </div>
+      <div class="col-md-8">
+        <input type="test" id="host_port" ng-model="host.port.value">
+      </div>
+      <div class="col-md-3">
+        <button id="host_port_select" ng-bind="host.port.selected ? 'Clear' : 'Select'" ng-click="showData('ip.dst','+%26%26+port.src+%3D%3D+'+host.port.value)">
+      </div>
+    </div>
+  </div>
+  <div id="display"></div>
+</div>
+
+<% include ../partials/foot %>
+<script type="text/javascript">
+
+var app = angular.module('main',[]);
+
+app.directive('tooltip', function(){
+    return {
+        restrict: 'A',
+        link: function(scope, element, attrs){
+            element.hover(function(){
+                // on mouseenter
+                element.tooltip('show');
+            }, function(){
+                // on mouseleave
+                element.tooltip('hide');
+            });
+        }
+    };
+});
+
+app.controller('searchCtrl', ($scope,$q,$http)=>{
+  $scope.ips_private = [];
+  $scope.host = {ip:{ready:false,value:"",selected:false},port:{ready:false,value:"",selected:false,available:[]}};
+  $http.get("https://moloch.kit2.init0.tk/unique.txt?counts=0&exp=ip.src&expression=ip.src+%3D%3D+%5B10.0.0.0%2F8,192.168.0.0%2F16,172.16.0.0%2F12%5D",
+    {headers: {"Authorization":"Basic c3Rvcm06JCswcm1OM1Q="}}).then(function(resp){
+      $scope.ips_private = resp.data.split(/\n/g);
+      $scope.host.ip.ready = true;
+      $scope.init();
+    });
+  $scope.init = ()=>{
+    $(function(){
+      $("#host_ip").autocomplete({
+        source: $scope.ips_private
+      });
+      $('#host_port').autocomplete({
+        source: $scope.host.port.available
+      })
+    });
+  };
+  $scope.validateIP = ()=>{
+    $scope.host.ip.selected = $scope.ips_private.includes($scope.host.ip.value);
+    if($scope.host.ip.selected){
+      $http.get("https://moloch.kit2.init0.tk/unique.txt?counts=0&exp=port.src&expression=ip.src+%3D%3D+"+$scope.host.ip.value,
+        {headers: {"Authorization":"Basic c3Rvcm06JCswcm1OM1Q="}}).then(function(resp){
+          $scope.host.port.available = resp.data.split(/\n/g);
+          $scope.host.port.ready = true;
+          $scope.init();
+      });
+    }
+  };
+
+  $scope.showData = (field,query)=>{
+    $http.get("https://moloch.kit2.init0.tk/connections.json?length=100&start=0&date=-1&srcField=srcIp&dstField="+field+":port&bounding=last&interval=auto&minConn=1&nodeDist=125&expression=ip.src+%3D%3D+"+$scope.host.ip.value+query,
+      {headers: {"Authorization":"Basic c3Rvcm06JCswcm1OM1Q="}}).then(function(resp){
+    });
+  };
+});
+
+
+
+
+</script>
+</body>
+</html>
